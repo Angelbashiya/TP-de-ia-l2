@@ -1,2 +1,68 @@
 # TP-de-ia-l2
-TPia
+#Présenter par : 
+#BATIA PUATI  Peniel 
+#CIKUDI BASHIYA Angel
+#LUSAMBA MULUMBA Clémentine  
+#MUJINGA CISUAKA Marguerite 
+
+
+#TP1 
+#DATASET :'CO2 Emissions_Canada'
+
+# importations 
+import pandas as pd
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import OneHotEncoder
+from sklearn.ensemble import GradientBoostingRegressor
+from sklearn.metrics import mean_squared_error, r2_score
+from sklearn.compose import ColumnTransformer
+from sklearn.pipeline import Pipeline
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+from sklearn.ensemble import RandomForestRegressor
+
+# Insertion du fichier dans l'environnement google colab 
+from google.colab import files
+uploaded = files.upload()
+print(uploaded)
+
+#Chargement de données 
+dt = pd.read_csv('CO2 Emissions_Canada.csv')
+
+# Sélection des variables pertinentes
+features = ['Engine Size(L)', 'Cylinders', 'Fuel Type', 'Transmission', 'Vehicle Class']
+target = 'CO2 Emissions(g/km)'
+X = dt[features]
+y = dt[target]
+
+#Prétraitement (encodage des variables catégorielles)
+categorical = ['Fuel Type', 'Transmission', 'Vehicle Class']
+numerical = ['Engine Size(L)', 'Cylinders']
+
+preprocessor = ColumnTransformer([
+    ('onehot', OneHotEncoder(handle_unknown='ignore'), categorical)
+], remainder='passthrough')
+
+#Modélisation du model 
+model = Pipeline([
+    ('preproc', preprocessor),
+    ('rf', RandomForestRegressor(n_estimators=300, max_depth=10, random_state=42))
+])
+
+#Division des données
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+#Évaluation du modèle 
+y_pred = model.predict(X_test)
+
+mae = mean_absolute_error(y_test, y_pred)
+mse = mean_squared_error(y_test, y_pred)
+rmse = np.sqrt(mse)
+r2 = r2_score(y_test, y_pred)
+
+#Résultat
+print("\n Résultat de régression après test:")
+print(f"MAE (Erreur Absolue Moyenne): {mae:.4f}")
+print(f"MSE (Erreur Quadratique Moyenne): {mse:.4f}")
+print(f"RMSE (Racine de l'Erreur Quadratique Moyenne): {rmse:.4f}")
+print(f"R² (Coefficient de détermination): {r2:.4f}")
