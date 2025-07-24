@@ -1,4 +1,4 @@
-# TP-de-ia-l2
+de# TP-de-ia-l2
 #Présenter par : 
 #BATIA PUATI  Peniel 
 #CIKUDI BASHIYA Angel
@@ -6,7 +6,7 @@
 #MUJINGA CISUAKA Marguerite 
 
 
-#TP1 
+#TP_1 
 #DATASET :'CO2 Emissions_Canada'
 
 # importations 
@@ -66,3 +66,54 @@ print(f"MAE (Erreur Absolue Moyenne): {mae:.4f}")
 print(f"MSE (Erreur Quadratique Moyenne): {mse:.4f}")
 print(f"RMSE (Racine de l'Erreur Quadratique Moyenne): {rmse:.4f}")
 print(f"R² (Coefficient de détermination): {r2:.4f}")
+
+
+TP_2 
+DASET:'IRIS'
+
+# importations 
+import numpy as np
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from tensorflow.keras.utils import to_categorical
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Conv1D, Flatten, Dense, MaxPooling1D
+
+# Chargement des données
+data = load_iris()
+X = data.data
+y = data.target
+# Encodage des labels
+y_encoded = to_categorical(y)
+
+# Normalisation
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
+
+# Reshape pour CNN 1D : (samples, timesteps, features)
+X_reshaped = X_scaled.reshape(X_scaled.shape[0], X_scaled.shape[1], 1)
+
+# Séparation train/test
+X_train, X_test, y_train, y_test = train_test_split(X_reshaped, y_encoded, test_size=0.2, random_state=42)
+
+# Modèle CNN
+model = Sequential([
+    Conv1D(filters=32, kernel_size=2, activation='relu', input_shape=(4, 1)),
+    MaxPooling1D(pool_size=2),
+    Flatten(),
+    Dense(16, activation='relu'),
+    Dense(3, activation='softmax')  # 3 classes
+])
+
+model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+
+# Entraînement
+model.fit(X_train, y_train, epochs=100, batch_size=8, validation_split=0.1)
+
+# Évaluation
+loss, accuracy = model.evaluate(X_test, y_test)
+print(f'CNN Accuracy: {accuracy * 100:.2f}%')
+
+
+
